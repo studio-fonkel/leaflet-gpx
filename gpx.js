@@ -79,7 +79,7 @@ L.GPX = L.FeatureGroup.extend({
     L.Util.setOptions(this, options);
 
     // Base icon class for track pins.
-    L.GPXTrackIcon = L.Icon.extend({ options: options.marker_options });
+    L.GPXTrackIcon = L.DivIcon.extend({ options: options.marker_options });
 
     this._gpx = gpx;
     this._layers = {};
