@@ -35,7 +35,7 @@
  * can be used to display additional information about the track that is
  * rendered on the Leaflet map.
  */
-
+import 'leaflet';
 var L = window.L;
 
 var _MAX_POINT_INTERVAL_MS = 15000;
