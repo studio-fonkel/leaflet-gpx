@@ -1,5 +1,4 @@
-GPX plugin for Leaflet
-======================
+# GPX plugin for Leaflet
 
 [![CDNJS](https://img.shields.io/cdnjs/v/leaflet-gpx.svg)](https://cdnjs.com/libraries/leaflet-gpx)
 
@@ -20,16 +19,13 @@ passed to the `GPX` constructor.
 I've put together a complete example as a
 [demo](http://mpetazzoni.github.com/leaflet-gpx/).
 
-
-License
--------
+## License
 
 `leaflet-gpx` is under the *BSD 2-clause license*. Please refer to the
 attached LICENSE file and/or to the copyright header in gpx.js for more
 information.
 
-Usage
------
+## Usage
 
 Usage is very simple. First, include the Leaflet.js and Leaflet-GPX
 scripts in your HTML page:
@@ -37,13 +33,13 @@ scripts in your HTML page:
 ```html
 <html>
   <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.css" />
     <!-- ... -->
   </head>
   <body>
     <!-- ... -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.3.1/gpx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/gpx.min.js"></script>
   </body>
 </html>
 ```
@@ -66,10 +62,6 @@ new L.GPX(gpx, {async: true}).on('loaded', function(e) {
 }).addTo(map);
 ```
 
-You can change the GPX track's appearance with a `polyline_options` object in
-the second argument of the constructor. Available options are listed in the
-[Leaflet documentation](http://leafletjs.com/reference.html#polyline).
-
 Some GPX tracks contain the actual route/track twice, both the `<trk>` and
 `<rte>` elements are used. You can tell `leaflet-gpx` which tag to use or to
 use both (which is the default setting for backwards compatibility) with the
@@ -77,6 +69,7 @@ use both (which is the default setting for backwards compatibility) with the
 `parseElements` controls this behavior, it should be an array that contains
 `'route'` and/or `'track'`.
 
+### Available functions
 
 If you want to display additional information about the GPX track, you can do
 so in the 'loaded' event handler, calling one of the following methods on the
@@ -98,6 +91,8 @@ so in the 'loaded' event handler, calling one of the following methods on the
 * `get_elevation_gain()`: returns the cumulative elevation gain, in meters
 * `get_elevation_loss()`: returns the cumulative elevation loss, in meters
 * `get_average_hr()`: returns the average heart rate (if available)
+* `get_average_cadence()`: returns the average cadence (if available)
+* `get_average_temp()`: returns the average of the temperature (if available)
 
 If you're not a fan of the metric system, you also have the following methods
 at your disposal:
@@ -113,35 +108,44 @@ at your disposal:
 * `get_elevation_loss_imp()`: returns the cumulative elevation loss, in feet
 
 The reason why these methods return milliseconds is that you have at your
-disposal a nice helper method to format a duration in milliseconds into a cool
-string like `3:07'48"` or `59'32.431`:
+disposal nice helper methods to format a duration in milliseconds into a cool
+string:
 
-* `get_duration_string(duration, hidems)`, where `duration` is in
+* `get_duration_string(duration, hidems)` format to a string like `3:07'48"`
+  or `59'32.431`, where `duration` is in
+  milliseconds and `hidems` is an optional boolean you can use to request never
+  to display millisecond precision.
+* `get_duration_string_iso(duration, hidems)` formats to an ISO like
+  representation like `3:07:48` or `59:32.431`, where `duration` is in
   milliseconds and `hidems` is an optional boolean you can use to request never
   to display millisecond precision.
 
-You can also get full elevation and heartrate data with:
+You can also get full elevation, heartrate, cadence and temperature data with:
 
 * `get_elevation_data()` and `get_elevation_data_imp()`
 * `get_heartrate_data()` and `get_heartrate_data_imp()`
+* `get_cadence_data()` and `get_cadence_data_imp()`
+* `get_temp_data()` and `get_temp_data_imp()`
 
 These methods all return an array of points `[distance, value, tooltip]` where
-the distance is either in kilometers or in miles and the elevation in meters of
+the distance is either in kilometers or in miles and the elevation in meters or
 feet, depending on whether you use the `_imp` variant or not. Heart rate,
 obviously, doesn't change.
 
-You can reload remote gpx file every 5 seconds with:
-```javascript
-var gpxLayer = new L.GPX(gpxFile);
+### Reloading
 
+You can make `leaflet-gpx` reload the source GPX file by calling the
+`reload()` method. For example, to trigger a reload every 5 seconds, you
+can do:
+
+```javascript
+var gpx = new L.GPX(gpxFile);
 setInterval(function() {
-	gpxLayer.reload();
-},5000);
+  gpx.reload();
+}, 5000);
 ```
 
-
-About marker icons
-------------------
+## About marker icons
 
 By default `gpx.js` will use `pin-icon-start.png`, `pin-icon-end.png` and
 `pin-shadow.png` as the marker icons URLs for, respectively, the start marker,
@@ -175,8 +179,7 @@ new L.GPX(url, {
 }).addTo(map);
 ```
 
-About waypoints
----------------
+## About waypoints
 
 By default `gpx.js` will parse Waypoints from a GPX file. This may also
 be steered via the value `waypoint` in `gpx_options`, e.g.
@@ -206,8 +209,7 @@ new L.GPX(app.params.gpx_url, {
 }).addTo(map);
 ```
 
-Custom markers
---------------
+## Custom markers
 
 You can also use your own icons/markers if you want to use custom
 markers, for example from `leaflet-awesome-markers`. To specify you own
@@ -234,8 +236,125 @@ new L.GPX(app.params.gpx_url, {
 }).addTo(map);
 ```
 
-Caveats
--------
+## Named points
+
+GPX points can be named, for example to denote certain POIs (points of
+interest). You can setup rules to match point names to create labeled
+markers for those points by providing a `pointMatchers` array in the
+`marker_options`. Each element in this array must define a `regex` to
+match the point's name and an `icon` object (any `L.Marker` or
+for example an `L.AwesomeMarkers.icon` as shown above in _Custom
+markers_).
+
+Each named point in the GPX track is evaluated against those rules and
+a marker is created with the point's name as label from the first
+matching rule.
+
+```javascript
+new L.GPX(app.params.gpx_url, {
+  async: true,
+  marker_options: {
+    pointMatchers: [
+      {
+        regex: /Coffee/,
+        icon: new L.AwesomeMarkers.icon({
+          icon: 'coffee',
+          markerColor: 'blue',
+          iconColor: 'white'
+        }),
+      },
+      {
+        regex: /Home/,
+        icon: new L.AwesomeMarkers.icon({
+          icon: 'home',
+          markerColor: 'green',
+          iconColor: 'white'
+        }),
+      }
+    ]
+  }
+}).on('loaded', function(e) {
+  var gpx = e.target;
+  map.fitToBounds(gpx.getBounds());
+}).addTo(map);
+```
+
+## Events
+
+Events are fired on the `L.GPX` object as the GPX data is being parsed
+and the map layers generated. You can listen for those events by
+attaching the corresponding event listener on the `L.GPX` object:
+
+```javascript
+new L.GPX(app.params.gpx_url, {
+  // options
+}).on('addpoint', function(e) {
+  console.log('Added ' + e.point_type + ' point: ' + e.point);
+}).on('loaded', function(e) {
+  var gpx = e.target;
+  map.fitToBounds(gpx.getBounds());
+}).addTo(map);
+```
+
+`addpoint` events are fired for every marker added to the map, in
+particular for the start and end points, all the waypoints, and all the
+named points that matched `pointMatchers` rules. Each `addpoint` event
+contains the following properties:
+
+- `point`: the marker object itself, from which you can get or modify
+  the latitude and longitude of the point and any other attribute of the
+  marker.
+- `point_type`: one of `start`, `end`, `waypoint` or `label`, allowing
+  you to identify what type of point the marker is for.
+- `element`: the track point element the marker was created for.
+
+One use case for those events is for example to attach additional
+content or behavior to the markers that were generated (popups, etc).
+
+## Line styling
+
+`leaflet-gpx` understands the [GPX
+Style](http://www.topografix.com/GPX/gpx_style/0/2) extension, and will
+extract styling information defined on routes and track segments to use
+for drawing the corresponding polyline.
+
+```xml
+<trkseg>
+  <extensions>
+    <line xmlns="http://www.topografix.com/GPX/gpx_style/0/2">
+      <color>FF0000</color>
+      <opacity>0.5</opacity>
+      <weight>1</weight>
+      <linecap>square</linecap>
+    </line>
+  </extensions>
+  <trkpt lat="..." lon="..."></trkpt>
+</trkseg>
+```
+
+You can override the style of the lines by passing a `polyline_options`
+object into the `options` argument of the `L.GPX` constructor:
+
+```javascript
+new L.GPX(app.params.url, {
+  polyline_options: {
+    color: 'green',
+    opacity: 0.75,
+    weight: 3,
+    lineCap: 'round'
+  }
+}).on('loaded', function(e) {
+  var gpx = e.target;
+  map.fitToBounds(gpx.getBounds());
+}).addTo(map);
+```
+
+For more information on the available polyline styling options, refer to
+the [Leaflet documentation on
+Polyline](https://leafletjs.com/reference-1.3.0.html#polyline). By
+default, if no styling is available, the line will be drawn in _blue_.
+
+## Caveats
 
 * Distance calculation is relatively accurate, but elevation change
   calculation is not topographically adjusted, so the total elevation
